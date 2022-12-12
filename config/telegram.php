@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Commands\StartCommand;
 return [
     /*
     |--------------------------------------------------------------------------
@@ -66,7 +67,7 @@ return [
     | Possible Values: (Boolean) "true" OR "false"
     |
     */
-    'async_requests'               => env('TELEGRAM_ASYNC_REQUESTS', true),
+    'async_requests'               => env('TELEGRAM_ASYNC_REQUESTS', false),
 
     /*
     |--------------------------------------------------------------------------
@@ -136,8 +137,8 @@ return [
     'command_groups'               => [
          // Group Type: 1
            'common' => [
-                Acme\Project\Commands\TodoCommand::class,
-                Acme\Project\Commands\TaskCommand::class,
+               StartCommand::class,
+//               TexttospeechCommand::class
            ],
 
 

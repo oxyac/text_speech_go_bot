@@ -1,5 +1,6 @@
 <?php
 
+use App\Http\Commands\StartCommand;
 use App\Http\Controllers\TelegramController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
@@ -16,13 +17,11 @@ use Telegram\Bot\Laravel\Facades\Telegram;
 |
 */
 
-Route::middleware('')->get('/user', function (Request $request) {
-    return $request->user();
-});
+Route::get('/getMe', function (Request $request) {
+    return Telegram::getCommands();
+})->name('telegram.get_me');
 
 
-Route::post('/webhook', [TelegramController::class, 'handle']);
-
-Route::get('/getMe', function () {
-    return Telegram::getMe();
-});
+Route::get('/addCommand', function (Request $request) {
+    Telegram::addCommand(StartCommand::class);
+})->name('telegram.get_me');

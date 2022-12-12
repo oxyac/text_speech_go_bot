@@ -15,7 +15,7 @@ return [
     |
     */
 
-    'default' => env('CACHE_DRIVER', 'file'),
+    'default' => env('CACHE_DRIVER', 'redis'),
 
     /*
     |--------------------------------------------------------------------------
@@ -107,4 +107,8 @@ return [
 
     'prefix' => env('CACHE_PREFIX', Str::slug(env('APP_NAME', 'laravel'), '_').'_cache_'),
 
+    'keys' => [
+        'telegram_update' => 'TELEGRAM_LAST_UPDATE_ID',
+        'telegram_chat_message' => 'TELEGRAM_CHAT_MESSAGE'
+    ]
 ];

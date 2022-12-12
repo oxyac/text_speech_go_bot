@@ -2,70 +2,84 @@
 
 namespace App\Services;
 
-use Illuminate\Database\Eloquent\Model;
-use Telegram\Bot\Api;
+use App\Jobs\ProcessUpdate;
+use Illuminate\Support\Facades\Cache;
+use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Exceptions\TelegramSDKException;
-use Telegram\Bot\FileUpload\InputFile;
+use Telegram\Bot\Laravel\Facades\Telegram;
+use Telegram\Bot\Objects\Update;
 
 class TelegramService
 {
-    protected Api $bot;
+    protected string $botName;
 
-    public function __construct()
+    public function init(string $botName = '')
     {
-        $this->bot = new Api('5924300524:AAH3MIbJH_4Y8uk3zD3TSB6bfg6XgBeU-Gk');
+        $this->botName = $botName;
+
     }
 
-
-    private function notifyTelegramChannels(Model $model)
+    public function run()
     {
-        $text = "<b> {$model->getAttribute('title')} </b>\n";
-        $text .= $model->getAttribute('body');
-//        $text .= "</div>";
-
-        $file = InputFile::create('/home/og/Downloads/inspiring-cinematic-ambient-116199.mp3', 'Inspire me');
-
-        $keyboard = [
-            'keyboard' => [
-                ['7', '8', '9'],
-                ['4', '5', '6'],
-                ['1', '2', '3'],
-                ['0']
-            ],
-            'one_time_keyboard' => true,
-            'resize_keyboard' => true,
-            'input_field_placeholder' => 'Guess my number'
-        ];
-
-        $replyKeyboard = json_encode( $keyboard );
-        try {
-            echo json_encode($this->bot->
-//            setAsyncRequest(true)->
-            sendMessage([
-                'chat_id' => '-863583783',
-                'parse_mode' => 'HTML',
-                'text' => $text,
-                'reply_markup' => $replyKeyboard
-            ]));
-
-
-
-//            $this->bot->
-//            sendAudio([
-//                'chat_id' => '-863583783',
-//                'audio' => $file,
-//                'caption' => 'best music on the block'
-//            ]);
-
-//            $this->bot->sendSticker(
-//                [
-//                    'chat_id' => '-863583783',
-//                    'sticker' => 'CAACAgIAAxkBAAMKYzn4jL5jXFlokxHPZYicrubaFFoAAncAAwH12y4yxI16yOJb6SoE'
-//                ]
-//            );
-        } catch (TelegramSDKException $e) {
-            echo $e->getMessage();
+        $timeIterationStart = microtime(true);
+        while (true) {
+            $this->speedControl($timeIterationStart);
+            $updates = $this->getUpdates();
+            foreach ($updates as $update) {
+                $this->queueCommand($update);
+            }
+            Log::debug('Check time: ' . time());
         }
     }
 
+    private function setLastUpdateId($updateId)
+    {
+        Cache::put(config('cache.keys.telegram_update'), $updateId);
+    }
+
+    private function getLastUpdateId()
+    {
+        return Cache::get(config('cache.keys.telegram_update'));
+    }
+
+    /**
+     * @return Update[]
+     */
+    private function getUpdates(): array
+    {
+        $lastUpdateId = $this->getLastUpdateId();
+        try{
+            $updates = Telegram::bot($this->botName)->getUpdates([
+                'allowed_updates' => ["message", "callback_query"],
+                'timeout'         => 10,
+                'offset'          => $lastUpdateId
+            ]);
+
+        } catch(TelegramSDKException $exception){
+            Log::error($exception->getMessage());
+            $updates = [];
+        }
+
+        if ($lastUpdate = end($updates)) {
+            $lastUpdateId = $lastUpdate->updateId;
+            $this->setLastUpdateId(++$lastUpdateId);
+        }
+        return $updates;
+    }
+
+    private function queueCommand(Update $update)
+    {
+        $botName = $this->botName;
+        ProcessUpdate::dispatch($update, $botName);
+    }
+
+    private function speedControl(&$iterationStartTime): void
+    {
+        $usleepControl = 1000000 - (microtime(true) - $iterationStartTime) * 1000000;
+        if ($usleepControl < 0) {
+            $usleepControl = 0;
+        }
+        usleep($usleepControl);
+        $iterationStartTime = microtime(true);
+    }
 }
