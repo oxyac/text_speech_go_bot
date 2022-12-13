@@ -25,8 +25,8 @@ class TextToSpeechService
             'text' => $message,
         ];
 
-        $url = "http://localhost:5500/api/tts?" . http_build_query($params);
-        $response = Http::get($url);
+        $url = config('app.tts.url') .  "tts?" . http_build_query($params);
+        $response = Http::timeout(600)->get($url);
         $filename =  'tmp/' . Str::uuid() . '.wav';
         Storage::disk()->put('/' . $filename, $response->body());
         return InputFile::create( storage_path('app/' . $filename), 'TTS GO BOT');

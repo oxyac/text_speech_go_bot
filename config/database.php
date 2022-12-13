@@ -122,7 +122,7 @@ return [
     'redis' => [
 
         'driver' => 'redis',
-        'connection' => 'default',
+        'connection' => 'socket',
         'queue' => '{default}',
         'retry_after' => 90,
 
@@ -140,6 +140,12 @@ return [
             'password' => env('REDIS_PASSWORD'),
             'port' => env('REDIS_PORT', '6379'),
             'database' => env('REDIS_DB', '0'),
+        ],
+
+        'socket' => [
+            'client' => env('REDIS_CLIENT'),
+            'scheme' => env('REDIS_SCHEME'),
+            'path' => env('REDIS_PATH')
         ],
 
         'cache' => [

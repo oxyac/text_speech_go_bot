@@ -18,7 +18,7 @@ return new class extends Migration
             $table->timestamps();
             $table->text('code');
             $table->text('name');
-            $table->text('voice_code')->nullable()->unique();
+            $table->string('voice_code', 50)->nullable()->unique();
             $table->text('voice_name')->nullable();
             $table->tinyText('gender')->nullable();
         });
@@ -31,7 +31,7 @@ return new class extends Migration
             $table->bigInteger('user_id');
             $table->text('first_name');
             $table->text('type');
-            $table->unsignedTinyInteger('language_id')->nullable();
+            $table->unsignedTinyInteger('language_id')->nullable()->default(1);
 
             $table->foreign('language_id')->references('id')->on('languages')->cascadeOnDelete();
         });

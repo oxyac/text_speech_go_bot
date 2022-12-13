@@ -18,7 +18,7 @@ class LanguageSeeder extends Seeder
      */
     public function run()
     {
-        $response = Http::get('http://localhost:5500/api/voices')->json();
+        $response = Http::timeout(30)->get(config('app.tts.url') . 'voices')->json();
 
         $lang = [];
         foreach ($response as $key => $item) {

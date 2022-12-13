@@ -44,6 +44,7 @@ class ProcessUpdate implements ShouldQueue
      */
     public function handle()
     {
+        $start = microtime(true);
         $bot = Telegram::bot($this->botName);
         $message = $this->telegramUpdate->getMessage();
         $type = $this->telegramUpdate->objectType();
@@ -59,6 +60,7 @@ class ProcessUpdate implements ShouldQueue
             $bot->answerCallbackQuery(['callback_query_id' => $this->telegramUpdate->callbackQuery->id]);
             $this->processCallback();
         }
+Log::debug('MESSAGE IN ASYNC TIME:' . microtime(true) - $start);
     }
 
     /**
@@ -132,7 +134,16 @@ class ProcessUpdate implements ShouldQueue
                     'message_id'   => $messageId,
                 ]);
                 break;
-
+            case 'STATS':
+                $keyboard = KeyboardService::getStatsBoard($chatId);
+                Telegram::bot($this->botName)->editMessageText([
+                    'parse_mode'   => 'HTML',
+                    'text'         => $keyboard['text'],
+                    'reply_markup' => $keyboard['keyboard'],
+                    'chat_id'      => $chatId,
+                    'message_id'   => $messageId,
+                ]);
+                break;
             case 'RETURN':
                 Log::debug($chatId);
 

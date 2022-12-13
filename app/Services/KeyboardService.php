@@ -24,6 +24,10 @@ class KeyboardService
                 [
                     'text'          => 'Settings',
                     'callback_data' => 'SETTINGS NULL'
+                ],
+                [
+                    'text'          => 'Stats',
+                    'callback_data' => 'STATS NULL'
                 ]
             ]
         ];
@@ -145,4 +149,13 @@ class KeyboardService
         Cache::put(config('cache.keys.telegram_chat_message') . $chatId, $message, 3600);
     }
 
+    public static function getStatsBoard($chatId)
+    {
+        $text = "Users: {USERS}\n";
+        $users = Chat::query()->count();
+        $text = str_replace('{USERS}', $users, $text);
+        $keyboard = [];
+        self::addBackButton($keyboard, 'getMainMenuBoard');
+        return ['text' => $text, 'keyboard' => json_encode(['inline_keyboard' => $keyboard])];
+    }
 }
