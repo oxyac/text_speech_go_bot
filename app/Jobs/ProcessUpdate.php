@@ -83,6 +83,9 @@ Log::debug('MESSAGE IN ASYNC TIME:' . microtime(true) - $start);
         Log::critical($exception->getMessage());
     }
 
+    /**
+     * @throws TelegramSDKException
+     */
     private function processCallback()
     {
 
@@ -94,7 +97,6 @@ Log::debug('MESSAGE IN ASYNC TIME:' . microtime(true) - $start);
         $value = $data[1];
 
         Log::debug("CALLBACK CHAT_ID:$chatId ACTION:$action VALUE:$value MESSAGE_ID:$messageId");
-
         switch ($action) {
             case 'SETTINGS':
                 if ($value === 'LANG') {
@@ -104,15 +106,6 @@ Log::debug('MESSAGE IN ASYNC TIME:' . microtime(true) - $start);
                 } else {
                     $keyboard = KeyboardService::getSettingsBoard($chatId);
                 }
-
-                Telegram::bot($this->botName)->editMessageText([
-                    'parse_mode'   => 'HTML',
-                    'text'         => $keyboard['text'],
-                    'reply_markup' => $keyboard['keyboard'],
-                    'chat_id'      => $chatId,
-                    'message_id'   => $messageId,
-                ]);
-
                 break;
             case 'LANG':
             case 'VOICE':
@@ -122,40 +115,30 @@ Log::debug('MESSAGE IN ASYNC TIME:' . microtime(true) - $start);
                 } else {
                     $chatModel->language_id = Language::where('voice_code', $value)->first()->id;
                 }
-
                 $chatModel->save();
                 $keyboard = KeyboardService::getSettingsBoard($chatId);
-
-                Telegram::bot($this->botName)->editMessageText([
-                    'parse_mode'   => 'HTML',
-                    'text'         => $keyboard['text'],
-                    'reply_markup' => $keyboard['keyboard'],
-                    'chat_id'      => $chatId,
-                    'message_id'   => $messageId,
-                ]);
                 break;
             case 'STATS':
                 $keyboard = KeyboardService::getStatsBoard($chatId);
-                Telegram::bot($this->botName)->editMessageText([
-                    'parse_mode'   => 'HTML',
-                    'text'         => $keyboard['text'],
-                    'reply_markup' => $keyboard['keyboard'],
-                    'chat_id'      => $chatId,
-                    'message_id'   => $messageId,
-                ]);
                 break;
             case 'RETURN':
-                Log::debug($chatId);
-
                 $keyboard = KeyboardService::getReturnKeyboard($value, $chatId);
-                Telegram::bot($this->botName)->editMessageText([
-                    'parse_mode'   => 'HTML',
-                    'text'         => $keyboard['text'],
-                    'reply_markup' => $keyboard['keyboard'],
-                    'chat_id'      => $chatId,
-                    'message_id'   => $messageId,
-                ]);
                 break;
+        }
+        if(!isset($keyboard)){
+            $keyboard = KeyboardService::getMainMenuBoard($chatId);
+        }
+
+        try{
+            Telegram::bot($this->botName)->editMessageText([
+                'parse_mode'   => 'HTML',
+                'text'         => $keyboard['text'],
+                'reply_markup' => $keyboard['keyboard'],
+                'chat_id'      => $chatId,
+                'message_id'   => $messageId,
+            ]);
+        } catch (TelegramSDKException $e){
+            Log::critical($e->getMessage());
         }
     }
 

@@ -23,7 +23,6 @@ class TelegramService
     {
         $timeIterationStart = microtime(true);
         while (true) {
-            $this->speedControl($timeIterationStart);
             $updates = $this->getUpdates();
             foreach ($updates as $update) {
                 $this->queueCommand($update);
