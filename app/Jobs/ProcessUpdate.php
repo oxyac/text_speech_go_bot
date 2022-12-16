@@ -4,7 +4,9 @@ namespace App\Jobs;
 
 use App\Models\Chat;
 use App\Models\Language;
+use App\Models\Menu;
 use App\Services\KeyboardService;
+use App\Services\KeyboardService_new;
 use App\Services\TelegramService;
 use App\Services\TextToSpeechService;
 use Exception;
@@ -60,7 +62,7 @@ class ProcessUpdate implements ShouldQueue
             $bot->answerCallbackQuery(['callback_query_id' => $this->telegramUpdate->callbackQuery->id]);
             $this->processCallback();
         }
-Log::debug('MESSAGE IN ASYNC TIME:' . microtime(true) - $start);
+        Log::debug('MESSAGE IN ASYNC TIME:' . microtime(true) - $start);
     }
 
     /**
@@ -88,52 +90,17 @@ Log::debug('MESSAGE IN ASYNC TIME:' . microtime(true) - $start);
      */
     private function processCallback()
     {
-
-        $dataString = $this->telegramUpdate->callbackQuery->data;
         $chatId = $this->telegramUpdate->getChat()->id;
         $messageId = $this->telegramUpdate->getMessage()->messageId;
-        $data = explode(' ', $dataString);
-        $action = $data[0];
-        $value = $data[1];
-
-        Log::debug("CALLBACK CHAT_ID:$chatId ACTION:$action VALUE:$value MESSAGE_ID:$messageId");
-        switch ($action) {
-            case 'SETTINGS':
-                if ($value === 'LANG') {
-                    $keyboard = KeyboardService::getSelectLangBoard($chatId);
-                } elseif ($value === 'VOICE') {
-                    $keyboard = KeyboardService::getSelectVoiceBoard($chatId);
-                } else {
-                    $keyboard = KeyboardService::getSettingsBoard($chatId);
-                }
-                break;
-            case 'LANG':
-            case 'VOICE':
-                $chatModel = Chat::where(['id' => $chatId])->first();
-                if ($action === 'LANG') {
-                    $chatModel->language_id = Language::where('code', $value)->first()->id;
-                } else {
-                    $chatModel->language_id = Language::where('voice_code', $value)->first()->id;
-                }
-                $chatModel->save();
-                $keyboard = KeyboardService::getSettingsBoard($chatId);
-                break;
-            case 'STATS':
-                $keyboard = KeyboardService::getStatsBoard($chatId);
-                break;
-            case 'RETURN':
-                $keyboard = KeyboardService::getReturnKeyboard($value, $chatId);
-                break;
-        }
-        if(!isset($keyboard)){
-            $keyboard = KeyboardService::getMainMenuBoard($chatId);
-        }
-
+        /* @var KeyboardService */
+        $keyboardService = App::makeWith(KeyboardService::class, ['update' => $this->telegramUpdate]);
+        /** @var Menu $menu */
+        $menu = $keyboardService->getBoard();
         try{
             Telegram::bot($this->botName)->editMessageText([
                 'parse_mode'   => 'HTML',
-                'text'         => $keyboard['text'],
-                'reply_markup' => $keyboard['keyboard'],
+                'text'         => $menu->text,
+                'reply_markup' => json_encode(['inline_keyboard' => $menu->keyboard]),
                 'chat_id'      => $chatId,
                 'message_id'   => $messageId,
             ]);

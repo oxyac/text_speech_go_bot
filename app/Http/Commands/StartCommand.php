@@ -5,7 +5,9 @@ namespace App\Http\Commands;
 use App\Models\Chat;
 use App\Models\Language;
 use App\Services\KeyboardService;
+use App\Services\KeyboardService_new;
 use Cache;
+use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Log;
 use Telegram\Bot\Actions;
 use Telegram\Bot\Commands\Command;
@@ -40,11 +42,11 @@ class StartCommand extends Command
             $chat->save();
         }
 
-        $keyboard = KeyboardService::getMainMenuBoard($chatId);
+        $menu = KeyboardService::getMainMenuBoardStatic($chatId);
         $message = $this->replyWithMessage([
             'parse_mode'   => 'HTML',
-            'text'         => $keyboard['text'],
-            'reply_markup' => $keyboard['keyboard']
+            'text'         => $menu->text,
+            'reply_markup' => json_encode(['inline_keyboard' => $menu->keyboard])
         ]);
         Log::debug('MESSAGE SENT:' . json_encode($message));
     }
