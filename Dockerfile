@@ -26,13 +26,12 @@ RUN apk add --no-cache \
     	npm \
     	sqlite;
 
-RUN set -eux; \
-	install-php-extensions \
-		apcu \
-		intl \
-		opcache \
-		zip \
-	;
+#RUN set -eux; \
+#	install-php-extensions \
+#		apcu \
+#		intl \
+#		zip \
+#	;
 
 # Install the PHP Redis extension.
 #RUN apk add --no-cache autoconf \
