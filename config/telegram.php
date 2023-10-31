@@ -31,9 +31,10 @@ return [
     */
     'bots'                         => [
         'text_speech_go_bot' => [
-            'token'               => env('TELEGRAM_BOT_TOKEN', '5924300524:AAH3MIbJH_4Y8uk3zD3TSB6bfg6XgBeU-Gk'),
+            'token'               => env('TELEGRAM_BOT_TOKEN', ''),
             'certificate_path'    => env('TELEGRAM_CERTIFICATE_PATH', 'YOUR-CERTIFICATE-PATH'),
             'webhook_url'         => env('TELEGRAM_WEBHOOK_URL', 'YOUR-BOT-WEBHOOK-URL'),
+            'webhook_secret'         => env('TELEGRAM_BOT_TOKEN_SECRET_WEBHOOK', ''),
             'commands'            => [
 //                'admin',
                 'common'

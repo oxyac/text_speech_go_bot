@@ -2,6 +2,7 @@
 
 use App\Http\Commands\StartCommand;
 use App\Http\Controllers\TelegramController;
+use App\Jobs\ProcessUpdate;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
 use Telegram\Bot\Laravel\Facades\Telegram;
@@ -25,3 +26,20 @@ Route::get('/getMe', function (Request $request) {
 Route::get('/addCommand', function (Request $request) {
     Telegram::addCommand(StartCommand::class);
 })->name('telegram.get_me');
+
+Route::get('/setWebhook', function (Request $request) {
+    return Telegram::setWebhook([
+        'url' => 'https://voice.oxyac.dev/' . config('telegram.bots.text_speech_go_bot.webhook_secret') . '/webhook',
+    ]);
+})->name('telegram.get_me');
+
+
+Route::post('/<token>/webhook', function () {
+    $update = Telegram::commandsHandler(true);
+    // Commands handler method returns the Update object.
+    // So you can further process $update object
+    // to however you want.
+    ProcessUpdate::dispatch($update, 'text_speech_go_bot');
+
+    return 'ok';
+});
