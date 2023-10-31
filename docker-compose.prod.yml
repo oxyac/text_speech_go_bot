@@ -9,4 +9,4 @@ services:
     environment:
       APP_SECRET: ${APP_SECRET}
     volumes:
-      - ${SQLITE_FOLDER_PATH-./storage/database.sqlite}:/app/storage/database.sqlite
+      - ${SQLITE_FOLDER_PATH-./storage/database.sqlite}:/app/database/database.sqlite
