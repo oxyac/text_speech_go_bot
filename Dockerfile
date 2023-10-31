@@ -109,6 +109,5 @@ RUN rm -Rf frankenphp/
 RUN set -eux; \
 	mkdir -p storage/framework/cache/data storage/framework/sessions storage/framework/views storage/logs storage/sessions storage/views; \
 	composer dump-autoload --classmap-authoritative --no-dev; \
-	composer dump-env prod; \
 	composer run-script --no-dev post-install-cmd; \
 	chmod +x bin/console; sync;
