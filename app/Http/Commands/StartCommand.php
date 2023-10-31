@@ -17,12 +17,12 @@ class StartCommand extends Command
     /**
      * @var string Command Name
      */
-    protected $name = "start";
+    protected string $name = "start";
 
     /**
      * @var string Command Description
      */
-    protected $description = "Start text to speech bot";
+    protected string $description = "Start text to speech bot";
 
     /**
      * @inheritdoc
