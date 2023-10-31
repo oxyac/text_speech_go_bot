@@ -34,7 +34,7 @@ Route::get('/setWebhook', function (Request $request) {
 })->name('telegram.get_me');
 
 
-Route::post('/<token>/webhook', function () {
+Route::post('/' . config('telegram.bots.text_speech_go_bot.webhook_secret') .'/webhook', function () {
     $update = Telegram::commandsHandler(true);
     // Commands handler method returns the Update object.
     // So you can further process $update object
