@@ -8,6 +8,12 @@
 
 {$CADDY_EXTRA_CONFIG}
 
+log {
+	format filter {
+		wrap console
+	}
+}
+
 route {
 	root * /app/public
 

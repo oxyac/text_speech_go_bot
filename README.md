@@ -13,14 +13,12 @@ with [FrankenPHP](https://frankenphp.dev) and [Caddy](https://caddyserver.com/) 
 4. Open `https://localhost` in your favorite web browser and [accept the auto-generated TLS certificate](https://stackoverflow.com/a/15076602/1352334)
 5. Run `docker compose down --remove-orphans` to stop the Docker containers.
 
-docker exec -it oxyacdev-php-1 npm run dev
-
 SERVER_NAME=:80 \
-APP_SECRET=123 \
-CADDY_MERCURE_JWT_SECRET=123 \
-HTTPS_PORT=4443 \
-HTTP3_PORT=4443 \
-HTTP_PORT=81 \
+APP_SECRET=lfdsadf21*%72kdgjlksdfjgwkjrlkr3jrljlkj \
+HTTPS_PORT=4442 \
+HTTP3_PORT=4442 \
+HTTP_PORT=82 \
+SQLITE_FOLDER_PATH=/data/voice.sqlite \
 docker-compose -f docker-compose.yml -f docker-compose.prod.yml up -d --wait --build
 
 
