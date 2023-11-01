@@ -24,7 +24,8 @@ RUN apk add --no-cache \
 		git \
     	nodejs \
     	npm \
-    	sqlite;
+    	sqlite \
+        supervisor;
 
 RUN set -eux; \
 	install-php-extensions \
@@ -52,6 +53,8 @@ RUN set -eux; \
 COPY --link frankenphp/conf.d/app.ini $PHP_INI_DIR/conf.d/
 COPY --link --chmod=755 frankenphp/docker-entrypoint.sh /usr/local/bin/docker-entrypoint
 COPY --link frankenphp/Caddyfile /etc/caddy/Caddyfile
+COPY --link frankenphp/text_speech_go_bot_worker.ini /etc/supervisor.d/text_speech_go_bot_worker.ini
+COPY --link frankenphp/supervisord.conf /etc/supervisor/supervisord.conf
 
 ENTRYPOINT ["docker-entrypoint"]
 
