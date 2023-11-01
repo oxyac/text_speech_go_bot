@@ -29,7 +29,7 @@ Route::get('/addCommand', function (Request $request) {
 
 Route::get('/setWebhook', function (Request $request) {
     return Telegram::setWebhook([
-        'url' => 'https://voice.oxyac.dev/' . config('telegram.bots.text_speech_go_bot.webhook_secret') . '/webhook',
+        'url' => 'https://voice.oxyac.dev/api/' . config('telegram.bots.text_speech_go_bot.webhook_secret') . '/webhook',
     ]);
 })->name('telegram.get_me');
 
