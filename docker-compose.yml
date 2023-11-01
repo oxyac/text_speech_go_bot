@@ -31,7 +31,7 @@ services:
   opentts:
     image: synesthesiam/opentts:all
     restart: unless-stopped
-    container_name: ${IMAGES_PREFIX:-}app-opentts
+    container_name: my-opentts
     ports:
         - "5500"
   cache:
